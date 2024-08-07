@@ -1,30 +1,110 @@
 <!doctype html>
 <head>
-    <title>Hello Azure - Python Quickstart</title>
+    <title>Document QA</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <style>
+        body {
+            background-color: #f5f5f7; /* Original background color */
+            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .btn-apple {
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .btn-apple:hover {
+            background-color: #005bb5;
+        }
+        #robot-logo {
+            display: block;
+            margin: 20px auto; /* Center the logo at the top */
+            width: 192px;
+            height: 192px;
+            transition: all 0.5s ease;
+        }
+        #processing-content {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: black;
+        }
+        #chat-button {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <html>
    <body>
+     <img id="robot-logo" src="{{ url_for('static', filename='images/Cartoon Style Robot.png') }}" alt="Robot Logo"/>
      <main>
-        <div class="px-4 py-3 my-2 text-center">
-            <img class="d-block mx-auto mb-4" src="{{ url_for('static', filename='images/azure-icon.svg') }}" alt="Azure Logo" width="192" height="192"/>
-            <!-- <img  src="/docs/5.1/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57"> -->
-            <h1 class="display-6 fw-bold text-primary">Welcome to Azure</h1>            
-          </div>
-        <form method="post" action="{{url_for('hello')}}">
+        <div id="initial-content">
+            <h1 class="display-6 fw-bold text-primary">Document QA</h1>
+            <p class="fs-5 text-muted">Upload a document and click "Process File" to start.</p>
+        </div>
+        <form id="upload-form" method="post" action="{{url_for('process_file')}}" enctype="multipart/form-data" onsubmit="return uploadFile(event);">
             <div class="col-md-6 mx-auto text-center">
-                <label for="name" class="form-label fw-bold fs-5">Could you please tell me your name?</label>
-
-                <!-- <p class="lead mb-2">Could you please tell me your name?</p> -->
-                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center align-items-center my-1">
-                    <input type="text" class="form-control" id="name" name="name" style="max-width: 256px;">
-                  </div>            
+                <div class="mb-3">
+                    <label for="file" class="form-label fw-bold fs-5">Choose a file</label>
+                    <input class="form-control" type="file" id="file" name="file" required>
+                </div>
                 <div class="d-grid gap-2 d-sm-flex justify-content-sm-center my-2">
-                  <button type="submit" class="btn btn-primary btn-lg px-4 gap-3">Say Hello</button>
-                </div>            
+                    <button type="submit" class="btn btn-apple btn-lg px-4 gap-3">Process File</button>
+                </div>
             </div>
         </form>
-     </main>      
+        <div id="processing-content" class="hidden">
+            <h1 class="display-6 fw-bold text-primary">Processing...</h1>
+            <p class="text-muted">Please wait while we process your file.</p>
+        </div>
+        <div id="chat-button">
+            <div class="btn-container">
+                <button onclick="window.location.href='{{ url_for('index') }}'" class="btn btn-apple btn-lg px-4 gap-3">Back</button>
+                <button onclick="window.location.href='{{ url_for('chat') }}'" class="btn btn-apple btn-lg px-4 gap-3">Chat Now</button>
+            </div>
+        </div>
+     </main>  
+     <script>
+        function uploadFile(event) {
+            event.preventDefault();
+            document.getElementById('initial-content').style.display = 'none';
+            document.getElementById('upload-form').style.display = 'none';
+            document.getElementById('processing-content').style.display = 'block';
+            document.getElementById('robot-logo').style.position = 'fixed';
+            document.getElementById('robot-logo').style.left = '10px';
+            document.getElementById('robot-logo').style.transform = 'none';
+            document.body.style.backgroundColor = '#f5f5f7'; /* Maintain original background color */
+            document.body.style.color = '#333';
+            
+            var formData = new FormData(event.target);
+            fetch('{{ url_for("process_file") }}', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.message) {
+                      document.getElementById('processing-content').style.display = 'none';
+                      document.getElementById('chat-button').style.display = 'block';
+                  } else {
+                      alert('File upload failed: ' + data.error);
+                      window.location.reload();
+                  }
+              }).catch(error => {
+                  console.error('Error:', error);
+                  alert('An error occurred while uploading the file.');
+                  window.location.reload();
+              });
+        }
+     </script>    
    </body>
 </html>
