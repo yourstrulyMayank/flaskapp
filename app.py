@@ -5,8 +5,8 @@ from azure.keyvault.secrets import SecretClient
 from azure.storage.blob import BlobServiceClient
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# UPLOAD_FOLDER = 'uploads'
+# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Key Vault Configuration
 key_vault_name = "documentqa"
