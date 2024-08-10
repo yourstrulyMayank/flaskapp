@@ -28,6 +28,9 @@ ACCOUNT_KEY = get_secret("azure-storage-account-key")
 AZURE_STORAGE_CONNECTION_STRING = get_secret("azure-storage-connection-string")
 CONTAINER_NAME = get_secret("azure-storage-container-name")
 
+if not all([ACCOUNT_NAME, ACCOUNT_KEY, AZURE_STORAGE_CONNECTION_STRING, CONTAINER_NAME]):
+    raise Exception("Failed to retrieve one or more secrets from Azure Key Vault.")
+
 blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
 
 @app.route('/')
